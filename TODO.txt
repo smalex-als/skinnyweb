@@ -1,0 +1,14 @@
+- search
+- open dictionary
+- show numbers
+- change color theme
+- show pictures (copy to my server, only for starred stories)
+- refresh automatically every hour 
+- settings in popup
+- next page/ prev page
+
++ show loader ala youtube
++ show description
++ sort by name
++ show original link at the bottom
++ button j/k should work everywhere
