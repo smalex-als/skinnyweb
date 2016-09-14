@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.skinnyweb.server.api.QueryService;
+import ru.skinnyweb.server.api.PostQueries;
 import ru.skinnyweb.server.model.Feed;
 import ru.skinnyweb.server.model.Post;
 import ru.skinnyweb.server.utils.DateUtils;
@@ -19,14 +19,8 @@ import ru.skinnyweb.shared.templates.StoriesListPage;
 
 public class StoriesListServlet extends BaseServlet {
   private static final Logger log = Logger.getLogger(StoriesListServlet.class.getName());
-  private final QueryService queryService;
-  private RequestHelper requestHelper; 
-
-  public StoriesListServlet(QueryService queryService, 
-      RequestHelper requestHelper) {
-    this.queryService = queryService;
-    this.requestHelper = requestHelper;
-  }
+  private final RequestHelper requestHelper; 
+  private final PostQueries postQueries;
 
   enum Folder {
     Inbox, Recommended, Starred, Done
@@ -46,6 +40,11 @@ public class StoriesListServlet extends BaseServlet {
     FOLDER_REGEXP = sb.toString();
   }
 
+  public StoriesListServlet(RequestHelper requestHelper, PostQueries postQueries) {
+    this.requestHelper = requestHelper;
+    this.postQueries = postQueries;
+  }
+
   @Override
   protected void innerGet(HttpServletRequest req, HttpServletResponse resp, String json) throws Exception {
     Feed feed = requestHelper.findFeed(req);
@@ -54,9 +53,11 @@ public class StoriesListServlet extends BaseServlet {
 
     List<Post> posts;
     if (folder == Folder.Inbox) {
-      posts = queryService.getAllStories(feed);
+      posts = postQueries.getAll(feed.getKey().getId(), false, null); 
     } else if (folder == Folder.Starred) {
-      posts = queryService.getStarredStories(feed);
+      posts = postQueries.getAll(feed.getKey().getId(), null, true); 
+    } else if (folder == Folder.Done) {
+      posts = postQueries.getAll(feed.getKey().getId(), null, null); 
     } else {
       posts = Lists.newArrayList();
     }

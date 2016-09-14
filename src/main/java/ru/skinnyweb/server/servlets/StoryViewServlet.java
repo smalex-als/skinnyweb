@@ -64,17 +64,26 @@ public class StoryViewServlet extends BaseServlet {
     builder.put("id", id);
     builder.put("date", DateUtils.printDateFull(entity.getDate()));
     builder.put("name", entity.getName());
+    builder.put("starred", entity.isStarred());
+    builder.put("archived", entity.isArchived());
     builder.put("category", entity.getCategory());
     builder.put("originalHref", entity.getHref());
     builder.put("description", entity.getDescription());
+
+    builder.put("star", "/story-" + id + "/star/");
+    builder.put("unstar", "/story-" + id + "/unstar/");
+    builder.put("unarchive", "/story-" + id + "/unarchive/");
+    builder.put("archive", "/story-" + id + "/archive/");
+    builder.put("back", "/feed-" + entity.getFeedId() + "/");
+
     if (StringUtils.hasText(content)) {
       String[] paras = content.split("\n\n");
       StringBuilder sb = new StringBuilder();
       for (int i = 0; i < paras.length; i++) {
         if (StringUtils.hasText(paras[i])) {
-          sb.append("<div class='para' data-id='" + (i + 1) + "'>");
+          sb.append("<p class='para' data-id='" + (i + 1) + "'>");
           sb.append(paras[i].replaceAll("\n", "<br>"));
-          sb.append("</div>");
+          sb.append("</p>");
         }
       }
       content = sb.toString();

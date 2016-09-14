@@ -15,9 +15,9 @@ public class FeedsListPage extends StandardPage {
         div().classAttr("page");
 
         div().classAttr("mainButtons");
-        write(buttonImage("buttonNew", "fa-plus"));
+        write(buttonImage("buttonNew", "fa-plus", "Add RSS", "#"));
         text(" ");
-        write(buttonImage("buttonRefresh", "fa-refresh"));
+        write(buttonImage("buttonRefresh", "fa-refresh", "Refresh All", "#"));
         end(); // mainButtons
 
         div().classAttr("feedsContainer");

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,11 +40,29 @@ public class StoryEditServlet extends BaseServlet {
 
   @Override
   protected void innerGet(HttpServletRequest req, HttpServletResponse resp, String json) throws Exception {
-    if (!StringUtils.hasText(json)) {
-      return;
-    }
     List<Id> ids = Lists.newArrayList();
-    Params params = new Gson().fromJson(json, Params.class);
+    Params params = null;
+    String redirect = null;
+    if (StringUtils.hasText(json)) {
+      params = new Gson().fromJson(json, Params.class);
+    } else {
+      Pattern p = Pattern.compile("^/story-(\\d+)/(un)?(archive|star)/$");
+      Matcher m = p.matcher(req.getRequestURI());
+      if (m.matches()) {
+        params = new Params();
+        params.id = m.group(1);
+        if (m.group(3).equals("archive")) {
+          params.prop = "archived";
+        } else if (m.group(3).equals("star")) {
+          params.prop = "starred";
+        }
+        params.value = !StringUtils.hasLength(m.group(2)) ? "true" : "false";
+
+        // TODO redirect to next #storyId
+        Post post = queryService.getPostById(NumberUtils.toLong(params.id));
+        redirect = "/feed-" + post.getFeedId() + "/";
+      }
+    }
     if (params.ids != null) {
       for (String idParam: params.ids) {
         ids.add(IdFactory.createId("Post", NumberUtils.toLong(idParam)));
@@ -53,9 +73,13 @@ public class StoryEditServlet extends BaseServlet {
     }
 
     updateEntity(ids, params.prop, params.value);
-    ResultBuilder builder = new ResultBuilder();
-    builder.put("result", true);
-    writeJsonResp(builder.build(), resp);
+    if (redirect != null) {
+      writeRedirect(resp, redirect);
+    } else {
+      ResultBuilder builder = new ResultBuilder();
+      builder.put("result", true);
+      writeJsonResp(builder.build(), resp);
+    }
   }
 
   void updateEntity(List<Id> ids, String prop, String value) {

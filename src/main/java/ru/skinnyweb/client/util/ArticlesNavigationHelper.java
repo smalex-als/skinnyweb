@@ -86,7 +86,8 @@ public class ArticlesNavigationHelper {
       if (srcEl != null && "A".equals(srcEl.getTagName())) {
         String href = srcEl.getAttribute("href");
         if (!href.startsWith("javascript") && !href.startsWith("https://")
-            && !href.startsWith("http://")) {
+            && !href.startsWith("http://") 
+            && !StyleUtils.hasClassName(srcEl, "pure-button")) {
           event.preventDefault();
           event.stopPropagation();
           OpenPageEvent.fire(eventBus, href, "");

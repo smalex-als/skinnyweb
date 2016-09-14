@@ -53,6 +53,8 @@ public class FeedsListActivity extends BaseActivity {
       @Override
       public void handleEvent(Event evt) {
         clickRefresh();
+        evt.stopPropagation();
+        evt.preventDefault();
       }
     }, false));
   }

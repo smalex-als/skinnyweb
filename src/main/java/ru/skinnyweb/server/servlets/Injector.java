@@ -23,6 +23,7 @@ public class Injector {
     servlets.serve("^/feed-(\\d+)/$", StoriesListServlet.class);
     servlets.serve("^/feed-(\\d+)" + StoriesListServlet.FOLDER_REGEXP + "$", StoriesListServlet.class);
     servlets.serve("^/feed-(\\d+)/story-(\\d+)/$", StoryViewServlet.class);
+    servlets.serve("^/story-(\\d+)/(un)?(archive|star)/$", StoryEditServlet.class);
     servlets.serve("^/story/edit/$", StoryEditServlet.class);
     servlets.serve("^/setup/$", SetupServlet.class);
     servlets.serve("^/f/.*$", CloudFilesServlet.class);

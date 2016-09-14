@@ -95,6 +95,13 @@ public abstract class BaseServlet extends HttpServlet {
     }
   }
 
+  protected void writeRedirect(HttpServletResponse resp, String url) {
+    try {
+      resp.sendRedirect(url);
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "failed write response", e);
+    }
+  }
   protected boolean isJsRender(HttpServletRequest req) {
     String value = StringUtils.ifEmpty(req.getParameter("jsrender"), "false");
     return Boolean.parseBoolean(value);

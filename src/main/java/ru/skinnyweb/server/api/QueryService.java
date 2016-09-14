@@ -1,10 +1,10 @@
 package ru.skinnyweb.server.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -38,49 +38,66 @@ public class QueryService {
   private final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
   private final MemcacheService cache = MemcacheServiceFactory.getMemcacheService();
 
-  public List<Post> getAllStories(Feed feed) {
-    Query query = new Query("Post");
-    query.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("feedId", feed.getKey().getId()),
-        FilterOperator.EQUAL.of("archived", false)
-    ));
-    query.addSort("date", SortDirection.DESCENDING);
+
+  private Filter convertFilter(Criteria.Filter filter) {
+    String op = filter.getOp();
+    if ("=".equals(op)) {
+      return FilterOperator.EQUAL.of(filter.getField(), filter.getValue());
+    } else {
+      throw new RuntimeException("Not implemented (op)");
+    }
+  }
+
+  public <T extends BaseModel> List<T> getEntities(Class<T> clazz, Criteria criteria) {
+    log.info("criteria = " + criteria);
+    Query query = new Query(criteria.getKind());
+    // query.setKeysOnly();
+    List<Criteria.Filter> filters = criteria.getFilters();
+    if (filters.size() > 1) {
+      List<Filter> newFilters = Lists.newArrayList();
+      for (Criteria.Filter filter : filters) {
+        newFilters.add(convertFilter(filter));
+      }
+      query.setFilter(CompositeFilterOperator.and(newFilters));
+    } else if (filters.size() == 1) {
+      query.setFilter(convertFilter(filters.get(0)));
+    }
+    for (String sortBy : criteria.getSorts()) {
+      if (sortBy.startsWith("-")) {
+        query.addSort(sortBy.substring(1), SortDirection.DESCENDING);
+      } else {
+        query.addSort(sortBy, SortDirection.ASCENDING);
+      }
+    }
     List<Entity> entities = datastore.prepare(query)
       .asList(FetchOptions.Builder.withLimit(50));
-    List<Post> res = Lists.newArrayList();
+    List<T> res = new ArrayList<>();
     for (Entity entity : entities) {
-      res.add(toPost(entity));
+      res.add((T) toObject(entity));
     }
     return res;
   }
 
-  public List<Post> getStarredStories(Feed feed) {
-    Query query = new Query("Post");
-    query.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("feedId", feed.getKey().getId()),
-        FilterOperator.EQUAL.of("starred", true)
-    ));
-    query.addSort("date", SortDirection.DESCENDING);
-    List<Entity> entities = datastore.prepare(query)
-      .asList(FetchOptions.Builder.withLimit(50));
-    List<Post> res = Lists.newArrayList();
-    for (Entity entity : entities) {
-      res.add(toPost(entity));
+  public List<Long> getAllStoriesIds(Feed feed) {
+    String key = "feedId:" + feed.getKey().getId() + "|archived:" + false;
+    List<Long> ids = (List<Long>) cache.get(key);
+    if (ids == null) {
+      Query query = new Query("Post");
+      query.setKeysOnly();
+      query.setFilter(CompositeFilterOperator.and(
+          FilterOperator.EQUAL.of("feedId", feed.getKey().getId()),
+          FilterOperator.EQUAL.of("archived", false)
+      ));
+      query.addSort("date", SortDirection.DESCENDING);
+      List<Entity> entities = datastore.prepare(query)
+        .asList(FetchOptions.Builder.withLimit(50));
+      ids = Lists.newArrayList();
+      for (Entity entity : entities) {
+        ids.add(entity.getKey().getId());
+      }
+      cache.put(key, ids);
     }
-    return res;
-  }
-
-  public List<Feed> getAllFeeds() {
-    Query query = new Query("Feed").addSort("name");
-    // Filter filter = FilterOperator.EQUAL.of("archived", false);
-    // query.setFilter(filter);
-    List<Entity> entities = datastore.prepare(query)
-      .asList(FetchOptions.Builder.withDefaults());
-    List<Feed> res = Lists.newArrayList();
-    for (Entity entity : entities) {
-      res.add(toFeed(entity));
-    }
-    return res;
+    return ids;
   }
 
   private Feed toFeed(Entity entity) {
@@ -307,7 +324,6 @@ public class QueryService {
       Key key = KeyFactory.createKey(kind, id);
       return datastore.get(key);
     } catch (EntityNotFoundException e) {
-      log.log(Level.SEVERE, "entity not found " + e.getKey(), e);
     }
     return null;
   }

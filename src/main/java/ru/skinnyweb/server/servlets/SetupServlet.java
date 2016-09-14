@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ru.skinnyweb.server.api.PostQueries;
 import ru.skinnyweb.server.api.QueryService;
 import ru.skinnyweb.server.model.Feed;
 import ru.skinnyweb.server.utils.Lists;
@@ -12,14 +13,16 @@ import ru.skinnyweb.server.utils.ResultBuilder;
 
 public class SetupServlet extends BaseServlet {
   private final QueryService queryService;
+  private final PostQueries postQueries;
 
-  public SetupServlet(QueryService queryService) {
+  public SetupServlet(QueryService queryService, PostQueries postQueries) {
     this.queryService = queryService;
+    this.postQueries = postQueries;
   }
 
   @Override
   protected void innerGet(HttpServletRequest req, HttpServletResponse resp, String content) throws Exception {
-    int cnt = queryService.getAllFeeds().size();
+    int cnt = postQueries.getAllFeeds().size();
     ResultBuilder builder = new ResultBuilder();
     builder.put("cnt", cnt);
     if (cnt == 0) {

@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ru.skinnyweb.server.api.PostQueries;
 import ru.skinnyweb.server.api.QueryService;
 import ru.skinnyweb.server.model.Feed;
 import ru.skinnyweb.server.utils.ResultBuilder;
@@ -13,14 +14,16 @@ import ru.skinnyweb.shared.templates.FeedsListPage;
 
 public class FeedsListServlet extends BaseServlet {
   private final QueryService queryService;
+  private final PostQueries postQueries;
 
-  public FeedsListServlet(QueryService queryService) {
+  public FeedsListServlet(QueryService queryService, PostQueries postQueries) {
     this.queryService = queryService;
+    this.postQueries = postQueries;
   }
 
   @Override
   protected void innerGet(HttpServletRequest req, HttpServletResponse resp, String content) throws Exception {
-    List<Feed> feeds = queryService.getAllFeeds();
+    List<Feed> feeds = postQueries.getAllFeeds();
     ResultBuilder builder = new ResultBuilder();
     builder.put("activityName", "FeedsListActivity");
     builder.put("jsrender", isJsRender(req));

@@ -50,11 +50,11 @@ public class StoriesListPage extends StandardPage {
         end();
 
         div().classAttr("mainButtons");
-        write(buttonImage("buttonBack", "fa-level-up fa-rotate-270"));
+        write(buttonImage("buttonBack", "fa-level-up fa-rotate-270", "Back", "/"));
         text(" ");
-        write(buttonImage("buttonRefresh", "fa-refresh"));
+        write(buttonImage("buttonRefresh", "fa-refresh", "Refresh", "#"));
         text(" ");
-        write(buttonImage("buttonArchiveAll", "fa-archive"));
+        write(buttonImage("buttonArchiveAll", "fa-archive", "Archive All", "#"));
         end();
 
         div().classAttr("articlesContainer");

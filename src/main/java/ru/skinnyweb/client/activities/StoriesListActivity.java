@@ -87,6 +87,7 @@ public class StoriesListActivity extends BaseActivity {
       }
     }, false));
     addHandlerRegistration(buttonArchiveAll.addEventListener(Event.CLICK, 
+
           new EventListener() {
       @Override
       public void handleEvent(Event evt) {
@@ -169,11 +170,11 @@ public class StoriesListActivity extends BaseActivity {
   }
 
   private void clickArchive(Element el, String id) {
-    int height = el.getClientHeight() - 24;
+    // int height = el.getClientHeight() - 24;
     String html = "<div style=\"display: table-cell; vertical-align: middle;\">" 
       + "<div>Archived</div></div>";
     el.setInnerHTML(html);
-    el.getStyle().setHeight(height, "px");
+    // el.getStyle().setHeight(height, "px");
     el.setClassName("articleArchived");
     rpcPostEdit(id, "archived", true);
     scheduleRemove(el);

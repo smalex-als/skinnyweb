@@ -48,11 +48,19 @@ public abstract class StandardPage extends BaseTemplates implements PageTemplate
   }
 
   protected HtmlWriter buttonImage(final String classAttr, final String classImage) {
+    return buttonImage(classAttr, classImage, "", "#");
+  }
+
+  protected HtmlWriter buttonImage(final String classAttr, final String classImage, 
+      final String title, final String href) {
     return new HtmlWriter() {
       @Override
       protected void build() {
-        div().classAttr("pure-button " + classAttr);
+        a().href(href).classAttr("pure-button " + classAttr);
         i().classAttr("fa " + classImage).text("").end();
+        if (title.length() > 0) {
+          raw("&nbsp;").text(" " + title);
+        }
         end();
       }
     };

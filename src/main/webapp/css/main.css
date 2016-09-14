@@ -5,20 +5,18 @@ a:visited {
   text-decoration: none;
 }
 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 a:active {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .mainButtons {
   margin: 1em;
 }
 
-.buttonRefreshImg {
-  background: no-repeat url(/images/general_2x_black-b568fe8c9e825d95d0a5f98bfdf32c66.png) 0 -124px;
-  -webkit-background-size: 21px 559px;
-  background-size: 21px 559px;
+.buttonHide {
+  display: none;
 }
 
 .feedsContainer {

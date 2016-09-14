@@ -15,16 +15,22 @@ public class StoryViewPage extends StandardPage {
         div().classAttr("page");
 
         div().classAttr("mainButtons");
-        // div().classAttr("pure-button buttonBack")
-        //   .attr("data-href", getString(map, "feed.href"))
-        //   .text("<<").end();
-        write(buttonImage("buttonBack", "fa-level-up fa-rotate-270"));
+        write(buttonImage("buttonBack", "fa-level-up fa-rotate-270", "Back", getString(article, "back")));
+        if (getBoolean(article, "archived")) {
+        } else {
+          text(" ");
+          write(buttonImage("buttonArchive", "fa-archive", "Archive", getString(article, "archive")));
+        }
         text(" ");
-        write(buttonImage("buttonArchive", "fa-archive"));
+        boolean isStarred = getBoolean(article, "starred");
+        write(buttonImage("buttonUnstar " + (isStarred ? "": "buttonHide"), 
+              "fa-star", "Unstar", "#"));
+        write(buttonImage("buttonStar " + (isStarred ? "buttonHide" : ""), 
+              "fa-star-o", "Star", "#"));
         text(" ");
-        write(buttonImage("buttonPrev", "fa-chevron-left"));
+        write(buttonImage("buttonPrev", "fa-chevron-left", "Prev", "#"));
         text(" ");
-        write(buttonImage("buttonNext", "fa-chevron-right"));
+        write(buttonImage("buttonNext", "fa-chevron-right", "Next", "#"));
         end(); // mainButtons
 
         div().classAttr("articleContainer");

@@ -28,6 +28,8 @@ public class StoryViewActivity extends BaseActivity {
   private AppFactory factory;
   private Element buttonBack;
   private Element buttonArchive;
+  private Element buttonStar;
+  private Element buttonUnstar;
   private Element buttonPrev;
   private Element buttonNext;
   private Element storyEl;
@@ -61,6 +63,8 @@ public class StoryViewActivity extends BaseActivity {
     storyEl = getElementByClassNameRequired("article");
     buttonBack = getElementByClassNameRequired("buttonBack");
     buttonArchive = getElementByClassNameRequired("buttonArchive");
+    buttonStar = getElementByClassNameRequired("buttonStar");
+    buttonUnstar = getElementByClassNameRequired("buttonUnstar");
     buttonPrev = getElementByClassNameRequired("buttonPrev");
     buttonNext = getElementByClassNameRequired("buttonNext");
     contentEl = getElementByClassNameRequired("content");
@@ -80,6 +84,8 @@ public class StoryViewActivity extends BaseActivity {
       @Override
       public void handleEvent(Event evt) {
         navHelper.goNextArticle();
+        evt.stopPropagation();
+        evt.preventDefault();
       }
     }, false));
     addHandlerRegistration(buttonPrev.addEventListener(Event.CLICK, 
@@ -87,6 +93,8 @@ public class StoryViewActivity extends BaseActivity {
       @Override
       public void handleEvent(Event evt) {
         navHelper.goPrevArticle();
+        evt.stopPropagation();
+        evt.preventDefault();
       }
     }, false));
     addHandlerRegistration(buttonBack.addEventListener(Event.CLICK, 
@@ -94,13 +102,35 @@ public class StoryViewActivity extends BaseActivity {
       @Override
       public void handleEvent(Event evt) {
         levelUp();
+        evt.stopPropagation();
+        evt.preventDefault();
+      }
+    }, false));
+    addHandlerRegistration(buttonStar.addEventListener(Event.CLICK, 
+          new EventListener() {
+      @Override
+      public void handleEvent(Event evt) {
+        clickPin(true);
+        evt.stopPropagation();
+        evt.preventDefault();
+      }
+    }, false));
+    addHandlerRegistration(buttonUnstar.addEventListener(Event.CLICK, 
+          new EventListener() {
+      @Override
+      public void handleEvent(Event evt) {
+        clickPin(false);
+        evt.stopPropagation();
+        evt.preventDefault();
       }
     }, false));
     addHandlerRegistration(buttonArchive.addEventListener(Event.CLICK, 
           new EventListener() {
       @Override
       public void handleEvent(Event evt) {
-        clickArchive("archived", "true");
+        clickArchive("archived", true, true);
+        evt.stopPropagation();
+        evt.preventDefault();
       }
     }, false));
     addHandlerRegistration(footerEl.addEventListener(Event.CLICK, 
@@ -260,16 +290,24 @@ public class StoryViewActivity extends BaseActivity {
     return width;
   }
 
-  private void clickArchive(String prop, String value) {
+  private void clickPin(boolean value) {
+    StyleUtils.toggleClass(buttonStar, "buttonHide", value);
+    StyleUtils.toggleClass(buttonUnstar, "buttonHide", !value);
+    clickArchive("starred", value, false);
+  }
+
+  private void clickArchive(String prop, boolean value, final boolean back) {
     Map<String, Object> obj = new HashMap<>();
     obj.put("id", storyEl.getAttribute("data-id"));
     obj.put("prop", prop);
-    obj.put("value", value);
+    obj.put("value", String.valueOf(value));
     JsonObject reqObj = JsonUtils.mapToJsonObject(obj);
     rpc.request("/story/edit/", reqObj, new JsonAsyncCallback() {
       @Override
       public void onSuccess(JsonObject main) {
-        levelUp();
+        if (back) {
+          levelUp();
+        }
       }
     });
   }
